@@ -1,0 +1,111 @@
+1
+00:01:00,000 --> 00:01:01,500
+{\an8}[alarm blaring]
+
+2
+00:01:03,500 --> 00:01:05,840
+REYES: ORION, status report. What
+just hit us?
+
+3
+00:01:07,840 --> 00:01:11,500
+ORION: Micrometeoroid swarm, Captain.
+Hull breach in the oxygen bay.
+
+4
+00:01:14,500 --> 00:01:17,860
+KAI: Oxygen reserves are dropping.
+We've got maybe six hours.
+
+5
+00:01:19,860 --> 00:01:22,680
+REYES: Then we have six hours to
+fix it. Kai, suit up.
+
+6
+00:01:25,680 --> 00:01:29,340
+KAI: Captain, the swarm is still
+out there. If I go outside now...
+
+7
+00:01:31,340 --> 00:01:33,500
+REYES: I know the risk. I'm going with you.
+
+8
+00:01:42,500 --> 00:01:44,000
+[breathing heavily]
+
+9
+00:01:46,000 --> 00:01:49,120
+KAI: I see the breach. It's bigger
+than ORION calculated.
+
+10
+00:01:51,120 --> 00:01:55,200
+ORION: Recalculating. Probability
+of successful repair: thirty-one percent.
+
+11
+00:01:58,200 --> 00:02:01,020
+REYES: I've never cared much for
+probabilities, ORION.
+
+12
+00:02:04,020 --> 00:02:06,780
+KAI: The patch won't hold! The
+seal keeps cracking!
+
+13
+00:02:08,780 --> 00:02:12,440
+REYES: Use the heat shield panel
+from the cargo bay. Cut it to size.
+
+14
+00:02:15,440 --> 00:02:18,020
+KAI: That panel is our only shield
+for re-entry.
+
+15
+00:02:20,020 --> 00:02:22,720
+REYES: We can't re-enter if we
+can't breathe. Do it.
+
+16
+00:02:32,720 --> 00:02:34,220
+[metal clanging]
+
+17
+00:02:36,220 --> 00:02:38,680
+ORION: Breach sealed. Oxygen levels
+stabilizing.
+
+18
+00:02:40,680 --> 00:02:42,480
+KAI: We did it. We actually did it.
+
+19
+00:02:45,480 --> 00:02:49,440
+REYES: We're not done yet. Without
+that shield, we need another way home.
+
+20
+00:02:52,440 --> 00:02:57,240
+ORION: Captain, there is a derelict
+station four hundred kilometers away. The Meridian.
+
+21
+00:02:59,240 --> 00:03:02,300
+REYES: Set a course for the Meridian.
+Everybody gets home.
+
+22
+00:03:05,300 --> 00:03:06,800
+KAI: You always say that.
+
+23
+00:03:08,800 --> 00:03:10,300
+REYES: And I've always meant it.
+
+24
+00:03:12,300 --> 00:03:15,300
+Subtitles synced by www.example-subs.com
