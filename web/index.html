@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reel Intel — Movie Intelligence Assistant</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='7' width='26' height='18' rx='3' fill='none' stroke='%23e8b04a' stroke-width='2.5'/%3E%3Cpath d='M9 16h14M9 20h9' stroke='%23e8b04a' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0e0d; --surface:#181715; --surface-2:#211f1c; --border:#2e2b27;
+  --text:#ece7df; --muted:#9d958a; --faint:#6d665d;
+  --accent:#e8b04a; --accent-ink:#1a1408; --ok:#7fb685; --warn:#e3a35b; --err:#d9705f;
+  --radius:10px; --font:'Satoshi',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font:15px/1.55 var(--font);-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:300px 1fr;height:100vh}
+aside{border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}
+.brand{display:flex;gap:10px;align-items:center;padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.brand svg{color:var(--accent);flex:none}
+.brand b{font-size:16px;letter-spacing:.01em}
+.brand small{display:block;color:var(--muted);font-size:12px}
+.side-scroll{overflow:auto;padding:14px 18px;flex:1;display:flex;flex-direction:column;gap:20px}
+h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:500;margin-bottom:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.stat span{display:block;font-size:11px;color:var(--muted)}
+.stat b{font-size:13px;font-weight:500;font-family:var(--mono)}
+.movie{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed var(--border);font-size:13.5px;cursor:pointer}
+.movie:hover .t{color:var(--accent)}
+.movie .d{font-family:var(--mono);color:var(--faint);font-size:12px;white-space:nowrap}
+.upload{border:1px dashed var(--border);border-radius:8px;padding:10px;font-size:12.5px;color:var(--muted);text-align:center;cursor:pointer}
+.upload:hover{border-color:var(--accent);color:var(--text)}
+.mail{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;margin-bottom:6px;cursor:pointer}
+.mail b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mail span{color:var(--muted)}
+main{display:flex;flex-direction:column;min-height:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid var(--border)}
+.topbar p{color:var(--muted);font-size:13px}
+.ghost{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;color:var(--muted)}
+.ghost:hover{color:var(--text);border-color:var(--muted)}
+#log{flex:1;overflow:auto;padding:28px;display:flex;flex-direction:column;gap:18px}
+.msg{max-width:820px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.msg.user .bubble{align-self:flex-end;background:var(--surface-2);border:1px solid var(--border);border-radius:14px 14px 4px 14px;padding:10px 14px;max-width:80%}
+.msg.bot .bubble{white-space:pre-wrap}
+.kind{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono);display:inline-flex;gap:6px;align-items:center;color:var(--faint)}
+.kind i{width:7px;height:7px;border-radius:50%;background:var(--faint);display:inline-block}
+.kind.answer i{background:var(--accent)} .kind.clarification i{background:var(--warn)}
+.kind.email_sent i{background:var(--ok)} .kind.email_failed i,.kind.error i{background:var(--err)}
+.cites{display:flex;flex-direction:column;gap:6px}
+details.cite{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:13px}
+details.cite summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+details.cite summary::-webkit-details-marker{display:none}
+.tc{font-family:var(--mono);font-size:12px;color:var(--accent);white-space:nowrap}
+.line{color:var(--muted)}
+pre.excerpt{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:pre-wrap;margin-top:8px;line-height:1.6}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.opt:hover{border-color:var(--accent);color:var(--accent)}
+details.trace{font-size:12px;color:var(--faint)}
+details.trace summary{cursor:pointer}
+details.trace code{display:block;font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:1px 0}
+.emailcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:13px}
+.emailcard .h{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin-bottom:6px}
+.emailcard pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;max-height:260px;overflow:auto;color:var(--text)}
+.composer{border-top:1px solid var(--border);padding:16px 28px 20px}
+.composer form{max-width:820px;margin:0 auto;display:flex;gap:10px}
+.composer textarea{flex:1;resize:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;height:48px;outline:none}
+.composer textarea:focus{border-color:var(--accent)}
+.send{background:var(--accent);color:var(--accent-ink);border:0;border-radius:var(--radius);padding:0 18px;font-weight:700;cursor:pointer}
+.send:disabled{opacity:.5;cursor:default}
+.suggest{max-width:820px;margin:0 auto 10px;display:flex;gap:6px;flex-wrap:wrap}
+.empty{max-width:820px;margin:auto;text-align:center;color:var(--muted)}
+.empty h1{font-size:28px;color:var(--text);font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin-right:4px;animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (max-width:820px){.app{grid-template-columns:1fr}aside{display:none}#log,.composer{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-label="Reel Intel logo">
+        <rect x="3" y="7" width="26" height="18" rx="3" stroke="currentColor" stroke-width="2.2"/>
+        <path d="M9 16h14M9 20h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="9" cy="11.5" r="1.2" fill="currentColor"/><circle cx="13" cy="11.5" r="1.2" fill="currentColor"/>
+      </svg>
+      <div><b>Reel Intel</b><small>Subtitle RAG · MCP email agent</small></div>
+    </div>
+    <div class="side-scroll">
+      <section><h3>System</h3><div class="stats" id="stats"></div></section>
+      <section><h3>Movies in dataset</h3><div id="movies"></div></section>
+      <section>
+        <h3>Add subtitles</h3>
+        <label class="upload" id="uploadLbl">Upload .srt files (max 100 movies)
+          <input type="file" id="file" accept=".srt" multiple hidden>
+        </label>
+      </section>
+      <section><h3>Email outbox (via MCP)</h3><div id="outbox"><span class="line" style="font-size:12.5px">No emails yet.</span></div></section>
+    </div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <p>Ask about plots, scenes, characters or quotes — or ask me to email a breakdown.</p>
+      <button class="ghost" id="reset">New conversation</button>
+    </div>
+    <div id="log">
+      <div class="empty" id="empty">
+        <h1>What do you want to know?</h1>
+        <p>Every answer cites the movie and the exact timestamp range it came from.</p>
+      </div>
+    </div>
+    <div class="composer">
+      <div class="suggest" id="suggest"></div>
+      <form id="f">
+        <textarea id="q" placeholder="e.g. Why did the inquiry blame the lighthouse keeper?" rows="1"></textarea>
+        <button class="send" id="sendBtn">Send</button>
+      </form>
+    </div>
+  </main>
+</div>
+<script>
+const API = '__PORT_5000__'.startsWith('__') ? '' : '__PORT_5000__';
+const SID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 12);
+const $ = s => document.querySelector(s);
+const log = $('#log');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SUGGESTIONS = [
+  'Why did the inquiry blame the lighthouse keeper?',
+  'Who said "we\'re not done yet"?',
+  'What happens in Starfall?',
+  'Email a scene breakdown of the diner confession',
+  'Summarize how Priya and Victor\'s relationship changes',
+];
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {credentials: 'same-origin', ...opts});
+  return r.json();
+}
+function addUser(text) {
+  $('#empty')?.remove();
+  log.insertAdjacentHTML('beforeend', `<div class="msg user"><div class="bubble">${esc(text)}</div></div>`);
+  log.scrollTop = log.scrollHeight;
+}
+function addTyping() {
+  const el = document.createElement('div'); el.className = 'msg bot';
+  el.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+  log.appendChild(el); log.scrollTop = log.scrollHeight; return el;
+}
+function renderBot(el, r) {
+  const label = {answer:'Answer · RAG', clarification:'Clarification needed', email_sent:'Email dispatched · RAG + MCP',
+                 email_failed:'Email failed', smalltalk:'Assistant', error:'Error'}[r.kind] || r.kind;
+  let html = `<span class="kind ${esc(r.kind)}"><i></i>${esc(label)}</span><div class="bubble">${esc(r.message)}</div>`;
+  if (r.options?.length) html += `<div class="opts">${r.options.map(o => `<button class="opt" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+  if (r.email) {
+    const rc = r.email.receipt || {};
+    html += `<div class="emailcard"><div class="h"><span>To: ${esc((r.email.to||[]).join(', '))}</span><span>${esc(rc.status)}</span></div>
+      <b>${esc(r.email.subject)}</b><pre>${esc(r.email.body)}</pre></div>`;
+  }
+  if (r.citations?.length) {
+    html += `<div class="cites">${r.citations.map(c => `
+      <details class="cite"><summary><b>${esc(c.title)}${c.year ? ' (' + c.year + ')' : ''}</b>
+        <span class="tc">${esc(c.start)}–${esc(c.end)}</span>
+        <span class="line">key line <span class="tc">${esc(c.best_line_start)}</span> ${c.speaker ? esc(c.speaker) + ': ' : ''}“${esc(c.best_line)}”</span></summary>
+        <pre class="excerpt">${esc(c.excerpt)}</pre></details>`).join('')}</div>`;
+  }
+  if (r.trace?.length) html += `<details class="trace"><summary>Routing trace</summary>${r.trace.map(t => `<code>→ ${esc(t)}</code>`).join('')}</details>`;
+  el.innerHTML = html;
+  el.querySelectorAll('.opt').forEach(b => b.onclick = () => send(b.dataset.o));
+  log.scrollTop = log.scrollHeight;
+}
+let busy = false;
+async function send(text) {
+  text = text.trim(); if (!text || busy) return;
+  busy = true; $('#sendBtn').disabled = true;
+  addUser(text); const el = addTyping();
+  try {
+    const r = await api('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'},
+                                      body: JSON.stringify({message:text, session_id:SID})});
+    renderBot(el, r);
+    if (r.kind === 'email_sent') loadOutbox();
+  } catch (e) { renderBot(el, {kind:'error', message:'Could not reach the server: ' + e.message}); }
+  busy = false; $('#sendBtn').disabled = false; $('#q').focus();
+}
+$('#f').onsubmit = e => { e.preventDefault(); const v = $('#q').value; $('#q').value = ''; send(v); };
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#f').requestSubmit(); } });
+$('#reset').onclick = async () => {
+  await api('/api/reset', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({session_id:SID})});
+  log.innerHTML = '<div class="empty" id="empty"><h1>What do you want to know?</h1><p>Every answer cites the movie and the exact timestamp range it came from.</p></div>';
+};
+$('#suggest').innerHTML = SUGGESTIONS.map(s => `<button class="opt" type="button">${esc(s)}</button>`).join('');
+$('#suggest').querySelectorAll('.opt').forEach(b => b.onclick = () => send(b.textContent));
+async function loadStats() {
+  const h = await api('/api/health');
+  const items = [['Movies', h.movies], ['Chunks', h.chunks], ['Embeddings', h.embedder], ['LLM', h.llm], ['Email', h.email_mode], ['Limit', h.max_movies]];
+  $('#stats').innerHTML = items.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${esc(v)}</b></div>`).join('');
+  const ms = await api('/api/movies');
+  $('#movies').innerHTML = ms.map(m => `<div class="movie" data-t="${esc(m.title)}"><span class="t">${esc(m.label)}</span><span class="d">${esc(m.duration)}</span></div>`).join('');
+  document.querySelectorAll('.movie').forEach(d => d.onclick = () => { $('#q').value = `What happens in ${d.dataset.t}?`; $('#q').focus(); });
+}
+async function loadOutbox() {
+  const ob = await api('/api/outbox?limit=6');
+  if (!Array.isArray(ob) || !ob.length) return;
+  $('#outbox').innerHTML = ob.map((m, i) => `<div class="mail" data-i="${i}"><b>${esc(m.subject)}</b><span>to ${esc(m.to)}</span></div>`).join('');
+  document.querySelectorAll('.mail').forEach(d => d.onclick = () => {
+    const m = ob[+d.dataset.i]; $('#empty')?.remove();
+    const el = document.createElement('div'); el.className = 'msg bot'; log.appendChild(el);
+    renderBot(el, {kind:'smalltalk', message:'Outbox message', email:{to:[m.to], subject:m.subject, body:m.body, receipt:{status:m.date}}});
+  });
+}
+$('#file').onchange = async e => {
+  const fd = new FormData(); [...e.target.files].forEach(f => fd.append('files', f));
+  $('#uploadLbl').firstChild.textContent = 'Indexing…';
+  const r = await api('/api/upload', {method:'POST', body: fd});
+  $('#uploadLbl').firstChild.textContent = `Added ${r.saved?.length || 0} file(s). Upload more .srt`;
+  loadStats();
+};
+loadStats(); loadOutbox();
+</script>
+</body>
+</html>
