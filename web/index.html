@@ -130,6 +130,7 @@ const API = '__PORT_5000__'.startsWith('__') ? '' : '__PORT_5000__';
 const SID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).slice(0, 12);
 const $ = s => document.querySelector(s);
 const log = $('#log');
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*\w])\*(?!\s)([^*\n]+?)\*(?!\w)/g,'$1<em>$2</em>').replace(/\[([^\[\]]+?, \d\d:\d\d:\d\d–\d\d:\d\d:\d\d)\]/g,'<span class="tc">[$1]</span>');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const SUGGESTIONS = [
   'Why did the inquiry blame the lighthouse keeper?',
@@ -155,7 +156,7 @@ function addTyping() {
 function renderBot(el, r) {
   const label = {answer:'Answer · RAG', clarification:'Clarification needed', email_sent:'Email dispatched · RAG + MCP',
                  email_failed:'Email failed', smalltalk:'Assistant', error:'Error'}[r.kind] || r.kind;
-  let html = `<span class="kind ${esc(r.kind)}"><i></i>${esc(label)}</span><div class="bubble">${esc(r.message)}</div>`;
+  let html = `<span class="kind ${esc(r.kind)}"><i></i>${esc(label)}</span><div class="bubble">${md(r.message)}</div>`;
   if (r.options?.length) html += `<div class="opts">${r.options.map(o => `<button class="opt" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
   if (r.email) {
     const rc = r.email.receipt || {};

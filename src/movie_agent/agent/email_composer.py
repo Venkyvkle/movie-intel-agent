@@ -1,6 +1,8 @@
 """Turns RAG results into an email (subject + body) with a citation appendix."""
 from __future__ import annotations
 
+import re
+
 from ..rag.answerer import RAGAnswer, format_context
 from .llm import LLM
 
@@ -15,7 +17,17 @@ SYSTEM = """You write clear, friendly emails sharing movie insights drawn ONLY f
 Write {style}. Use plain text (no markdown headings), short paragraphs or "-" bullets.
 Mention timestamps like (00:12:03) when referencing moments. Do not invent facts.
 Do NOT include a sources list; it is appended automatically. Sign off as "Movie Intelligence Assistant".
-Return JSON: {{"subject": "...", "body": "..."}}"""
+Output format, exactly:
+SUBJECT: <one-line subject>
+BODY:
+<email body>"""
+
+
+def strip_markdown(text: str) -> str:
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    text = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"\1", text)
+    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.M)
+    return text
 
 
 def citation_appendix(answer: RAGAnswer) -> str:
@@ -30,18 +42,20 @@ def compose_email(llm: LLM, request: str, style: str, answer: RAGAnswer, recipie
     style = style if style in STYLE_GUIDE else "general"
     if llm.available and answer.hits:
         try:
-            d = llm.complete_json(
+            raw = llm.complete(
                 SYSTEM.format(style=STYLE_GUIDE[style]),
                 f"Recipient: {recipient}\nRequest: {request}\n\nSources:\n{format_context(answer.hits[:5])}\n\n"
-                f"Grounded answer already produced:\n{answer.answer}", max_tokens=1200)
-            subject, body = d["subject"].strip(), d["body"].strip()
-            return {"subject": subject, "body": body + "\n" + citation_appendix(answer), "style": style}
+                f"Grounded answer already produced:\n{answer.answer}", max_tokens=1500)
+            m = re.search(r"SUBJECT:\s*(.+?)\s*\n+\s*BODY:\s*\n?(.*)", raw, re.S | re.I)
+            if m and m.group(2).strip():
+                subject, body = m.group(1).strip(), strip_markdown(m.group(2).strip())
+                return {"subject": subject, "body": body + "\n" + citation_appendix(answer), "style": style}
         except Exception:  # noqa: BLE001 — fall back to template
             pass
     movie = answer.citations[0].title if answer.citations else "your movie question"
     title = {"scene_breakdown": "Scene breakdown", "dialogue_summary": "Dialogue summary",
              "quote_analysis": "Quote analysis"}.get(style, "Movie notes")
-    body = (f"Hi,\n\nHere is the {title.lower()} you asked about ({request}).\n\n{answer.answer}\n\n"
+    body = (f"Hi,\n\nHere is the {title.lower()} you asked about ({request}).\n\n{strip_markdown(answer.answer)}\n\n"
             "Relevant dialogue:\n" + "\n\n".join(c.excerpt for c in answer.citations[:2]) +
             "\n\nBest,\nMovie Intelligence Assistant\n" + citation_appendix(answer))
     return {"subject": f"{title}: {movie}", "body": body, "style": style}

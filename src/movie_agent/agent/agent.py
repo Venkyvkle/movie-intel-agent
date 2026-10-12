@@ -21,7 +21,7 @@ from ..retrieval.vector_store import SubtitleIndex, tokenize
 from .email_composer import compose_email
 from .entities import extract_emails, pick_from_candidates, resolve_movies
 from .llm import LLM
-from .router import IntentRouter, RouteDecision
+from .router import IntentRouter, RouteDecision, heuristic_route
 
 log = logging.getLogger(__name__)
 
@@ -209,6 +209,9 @@ class MovieAgent:
             state.pending = None
             if p.intent == "email":
                 p.request = message
+                hs = heuristic_route("email " + message).email_style
+                if p.style == "general" and hs:
+                    p.style = hs
                 res = resolve_movies(message, self.catalog)
                 if res.resolved:
                     p.movie_ids = [m.movie_id for m in res.resolved]
@@ -221,6 +224,10 @@ class MovieAgent:
         if p.intent == "email" and not p.recipients:
             p.missing = "recipient"
             return self._ask(p, state, trace, None, "Who should I send it to? Please share an email address.")
+        if p.intent == "email" and not p.request and not p.use_previous:
+            p.missing = "content"
+            return self._ask(p, state, trace, None, "What should the email contain? For example a scene breakdown, "
+                             "a dialogue summary, or a quote analysis, and from which movie?")
         return self._execute(p, state, trace, None)
 
     # ------------------------------------------------------------ execution

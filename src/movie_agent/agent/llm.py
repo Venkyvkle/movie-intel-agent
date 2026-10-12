@@ -45,9 +45,12 @@ class LLM:
         if not self.available:
             raise RuntimeError("No LLM configured")
         if self.provider == "anthropic":
-            msg = self._client.messages.create(
-                model=self.model, max_tokens=max_tokens, temperature=temperature, system=system,
-                messages=[{"role": "user", "content": user}])
+            kwargs = dict(model=self.model, max_tokens=max_tokens, system=system,
+                          messages=[{"role": "user", "content": user}])
+            try:
+                msg = self._client.messages.create(temperature=temperature, **kwargs)
+            except TypeError:  # some gateways / newer models reject sampling params
+                msg = self._client.messages.create(**kwargs)
             return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
         resp = self._client.chat.completions.create(
             model=self.model, temperature=temperature, max_tokens=max_tokens,
