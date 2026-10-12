@@ -60,12 +60,11 @@ def timecode_to_ms(h: str, m: str, s: str, ms: str) -> int:
 
 def read_text(path: Path) -> str:
     data = path.read_bytes()
-    for enc in ("utf-8-sig", "utf-16", "cp1252", "latin-1"):
+    if data[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return data.decode("utf-16")
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
         try:
-            text = data.decode(enc)
-            if enc == "utf-16" and not data[:2] in (b"\xff\xfe", b"\xfe\xff"):
-                continue
-            return text
+            return data.decode(enc)
         except UnicodeDecodeError:
             continue
     return data.decode("utf-8", errors="replace")
